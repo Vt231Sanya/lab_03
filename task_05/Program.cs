@@ -34,6 +34,10 @@ class LightElementNode : LightNode
     public List<string> CssClasses { get; } = new List<string>();
     public LightNodeCollection Children { get; } = new LightNodeCollection();
 
+    private IDisplayState _displayState = new BlockState();
+    public void SetDisplayState(IDisplayState state) => _displayState = state;
+    public string Render() => _displayState.Render(this);
+
     public LightElementNode(string tagName, TagType tagKind)
     {
         TagName = tagName;
@@ -111,6 +115,21 @@ class AddClassCommand : ICommand
     public void Execute() => _element.AddClass(_className);
 }
 
+interface IDisplayState
+{
+    string Render(LightElementNode node);
+}
+
+class BlockState : IDisplayState
+{
+    public string Render(LightElementNode node) => $"<div>{node.InnerHTML}</div>";
+}
+
+class InlineState : IDisplayState
+{
+    public string Render(LightElementNode node) => $"<span>{node.InnerHTML}</span>";
+}
+
 
 class Program
 {
@@ -120,7 +139,7 @@ class Program
         var ul = new LightElementNode("ul", TagType.Paired);
         ul.AddClass("shopping-list");
 
-        
+        ul.SetDisplayState(new InlineState());
 
         var li = new LightElementNode("li", TagType.Paired);
         li.AddChild(new LightTextNode("Яблука"));
@@ -130,6 +149,9 @@ class Program
         command.Execute();
 
         Console.WriteLine(ul.OuterHTML);
+
+        Console.WriteLine($"\n== Render() with State ==");
+        Console.WriteLine(ul.Render());
 
     }
 }
