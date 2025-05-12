@@ -1,0 +1,46 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+
+# Logs
+*.log
+
+# Visual Studio cache
+.vs/
+
+# Dotnet CLI
+.project/
+.project.json
+*.pidb
+
+# Others
+*.tmp
+*.bak
+*.swp
+
+# Optional: test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
