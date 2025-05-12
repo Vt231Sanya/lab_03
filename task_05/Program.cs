@@ -32,7 +32,7 @@ class LightElementNode : LightNode
     public string TagName { get; }
     public TagType TagKind { get; }
     public List<string> CssClasses { get; } = new List<string>();
-    public List<LightNode> Children { get; } = new List<LightNode>();
+    public LightNodeCollection Children { get; } = new LightNodeCollection();
 
     public LightElementNode(string tagName, TagType tagKind)
     {
@@ -92,18 +92,44 @@ class LightNodeCollection : IEnumerable<LightNode>
     public int Count => _nodes.Count;
 }
 
+interface ICommand
+{
+    void Execute();
+}
+
+class AddClassCommand : ICommand
+{
+    private readonly LightElementNode _element;
+    private readonly string _className;
+
+    public AddClassCommand(LightElementNode element, string className)
+    {
+        _element = element;
+        _className = className;
+    }
+
+    public void Execute() => _element.AddClass(_className);
+}
+
 
 class Program
 {
     static void Main()
     {
+
         var ul = new LightElementNode("ul", TagType.Paired);
         ul.AddClass("shopping-list");
+
+        
 
         var li = new LightElementNode("li", TagType.Paired);
         li.AddChild(new LightTextNode("Яблука"));
         ul.AddChild(li);
 
+        var command = new AddClassCommand(ul, "highlighted");
+        command.Execute();
+
         Console.WriteLine(ul.OuterHTML);
+
     }
 }
