@@ -69,6 +69,30 @@ class LightElementNode : LightNode
     //public override void Accept(IVisitor visitor) { }
 }
 
+class LightNodeIterator : IEnumerator<LightNode>
+{
+    private readonly List<LightNode> _nodes;
+    private int _position = -1;
+
+    public LightNodeIterator(List<LightNode> nodes) => _nodes = nodes;
+
+    public LightNode Current => _nodes[_position];
+    object System.Collections.IEnumerator.Current => Current;
+    public bool MoveNext() => ++_position < _nodes.Count;
+    public void Reset() => _position = -1;
+    public void Dispose() { }
+}
+
+class LightNodeCollection : IEnumerable<LightNode>
+{
+    private readonly List<LightNode> _nodes = new List<LightNode>();
+    public void Add(LightNode node) => _nodes.Add(node);
+    public IEnumerator<LightNode> GetEnumerator() => new LightNodeIterator(_nodes);
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    public int Count => _nodes.Count;
+}
+
+
 class Program
 {
     static void Main()
