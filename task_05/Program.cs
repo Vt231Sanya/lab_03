@@ -10,7 +10,7 @@ abstract class LightNode
     protected abstract string GenerateOuterHTML();
     protected abstract string GenerateInnerHTML();
 
-    //public abstract void Accept(IVisitor visitor); 
+   public abstract void Accept(IVisitor visitor); 
 }
 
 class LightTextNode : LightNode
@@ -22,7 +22,7 @@ class LightTextNode : LightNode
     protected override string GenerateOuterHTML() => Text;
     protected override string GenerateInnerHTML() => Text;
 
-    //public override void Accept(IVisitor visitor) { } 
+    public override void Accept(IVisitor visitor) => visitor.VisitText(this);
 }
 
 enum TagType { SelfClosing, Paired }
@@ -70,7 +70,7 @@ class LightElementNode : LightNode
             return $"<{TagName}{classAttr}>{InnerHTML}</{TagName}>";
     }
 
-    //public override void Accept(IVisitor visitor) { }
+    public override void Accept(IVisitor visitor) => visitor.VisitElement(this);
 }
 
 class LightNodeIterator : IEnumerator<LightNode>
@@ -130,6 +130,26 @@ class InlineState : IDisplayState
     public string Render(LightElementNode node) => $"<span>{node.InnerHTML}</span>";
 }
 
+interface IVisitor
+{
+    void VisitText(LightTextNode textNode);
+    void VisitElement(LightElementNode elementNode);
+}
+
+class TagCountVisitor : IVisitor
+{
+    public int Count { get; private set; } = 0;
+
+    public void VisitText(LightTextNode textNode) { }
+
+    public void VisitElement(LightElementNode elementNode)
+    {
+        Count++;
+        foreach (var child in elementNode.Children)
+            child.Accept(this);
+    }
+}
+
 
 class Program
 {
@@ -148,10 +168,20 @@ class Program
         var command = new AddClassCommand(ul, "highlighted");
         command.Execute();
 
+        var visitor = new TagCountVisitor();
+        ul.Accept(visitor);
+
+        Console.WriteLine("== OuterHTML ==");
         Console.WriteLine(ul.OuterHTML);
 
-        Console.WriteLine($"\n== Render() with State ==");
+        Console.WriteLine("\n== InnerHTML ==");
+        Console.WriteLine(ul.InnerHTML);
+
+        Console.WriteLine("\n== Render() ==");
         Console.WriteLine(ul.Render());
+
+        Console.WriteLine("\n== Теги (Visitor) ==");
+        Console.WriteLine(visitor.Count);
 
     }
 }
